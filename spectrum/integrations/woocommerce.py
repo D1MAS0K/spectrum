@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
 import structlog
-from httpx import DigestAuth
 
 from config.settings import WooCommerceSettings, WordPressSettings
 
 logger = structlog.get_logger()
+
+# WooCommerce batch API needs a cooldown between calls to avoid 503 errors.
+# Learned the hard way: rapid batch calls cause server overload.
+BATCH_DELAY_SECONDS = 30
 
 
 class WooCommerceClient:
@@ -74,11 +78,39 @@ class WooCommerceClient:
         self.log.info("product_created", id=resp.json()["id"])
         return resp.json()
 
-    async def update_product(self, product_id: int, data: dict[str, Any]) -> dict[str, Any]:
+    async def update_product(
+        self, product_id: int, data: dict[str, Any], *, verify: bool = True
+    ) -> dict[str, Any]:
+        """Update a product, then GET it back to verify changes persisted.
+
+        WooCommerce sometimes returns 200 but silently drops fields.
+        The verify GET catches this before we assume success.
+        """
         resp = await self._client.put(f"{self._api}/products/{product_id}", json=data)
         resp.raise_for_status()
         self.log.info("product_updated", id=product_id)
-        return resp.json()
+
+        if not verify:
+            return resp.json()
+
+        # GET-after-PUT: verify the update actually persisted
+        verified = await self.get_product(product_id)
+        mismatches: list[str] = []
+        for key in data:
+            if key in verified and verified[key] != data[key]:
+                # Skip complex nested objects (images, categories, meta_data)
+                if isinstance(data[key], (list, dict)):
+                    continue
+                mismatches.append(key)
+
+        if mismatches:
+            self.log.warning(
+                "update_verification_mismatch",
+                product_id=product_id,
+                fields=mismatches,
+            )
+
+        return verified
 
     async def delete_product(self, product_id: int, force: bool = False) -> dict[str, Any]:
         resp = await self._client.delete(
@@ -96,7 +128,11 @@ class WooCommerceClient:
         update: list[dict[str, Any]] | None = None,
         delete: list[int] | None = None,
     ) -> dict[str, Any]:
-        """Batch create/update/delete up to 100 products per call."""
+        """Batch create/update/delete up to 100 products per call.
+
+        Includes a 30-second delay after each batch call to prevent
+        WooCommerce 503 errors from rapid successive batches.
+        """
         payload: dict[str, Any] = {}
         if create:
             payload["create"] = create
@@ -114,6 +150,11 @@ class WooCommerceClient:
             updated=len(result.get("update", [])),
             deleted=len(result.get("delete", [])),
         )
+
+        # Cooldown to prevent server overload on consecutive batch calls
+        self.log.debug("batch_cooldown", seconds=BATCH_DELAY_SECONDS)
+        await asyncio.sleep(BATCH_DELAY_SECONDS)
+
         return result
 
     # ── Product Variations ────────────────────────────────
@@ -151,6 +192,94 @@ class WooCommerceClient:
         resp = await self._client.post(f"{self._api}/products/categories", json=data)
         resp.raise_for_status()
         return resp.json()
+
+    # ── Product Attributes (for brand assignment) ────────
+
+    async def get_attributes(self) -> list[dict[str, Any]]:
+        """Get all product attributes (e.g., Brand, Color, Size)."""
+        resp = await self._client.get(f"{self._api}/products/attributes")
+        resp.raise_for_status()
+        return resp.json()
+
+    async def get_attribute_terms(
+        self, attribute_id: int, per_page: int = 100
+    ) -> list[dict[str, Any]]:
+        """Get all terms for a given attribute (e.g., all brands)."""
+        resp = await self._client.get(
+            f"{self._api}/products/attributes/{attribute_id}/terms",
+            params={"per_page": per_page},
+        )
+        resp.raise_for_status()
+        return resp.json()
+
+    async def create_attribute_term(
+        self, attribute_id: int, name: str
+    ) -> dict[str, Any]:
+        """Create a new term under an attribute (e.g., add a new brand)."""
+        resp = await self._client.post(
+            f"{self._api}/products/attributes/{attribute_id}/terms",
+            json={"name": name},
+        )
+        resp.raise_for_status()
+        self.log.info("attribute_term_created", attribute_id=attribute_id, term=name)
+        return resp.json()
+
+    async def assign_brand_to_product(
+        self, product_id: int, brand_name: str
+    ) -> dict[str, Any]:
+        """Multi-step brand assignment: find attribute → find/create term → assign.
+
+        Steps:
+        1. GET all attributes → find 'Brand' (or 'מותג')
+        2. GET attribute terms → find brand_name
+        3. If brand term doesn't exist → POST to create it
+        4. PUT product with the brand attribute
+        """
+        # Step 1: Find the Brand attribute
+        attributes = await self.get_attributes()
+        brand_attr = None
+        for attr in attributes:
+            if attr["name"].lower() in ("brand", "מותג", "pa_brand"):
+                brand_attr = attr
+                break
+
+        if not brand_attr:
+            self.log.warning("brand_attribute_not_found")
+            return {"error": "Brand attribute not found in WooCommerce"}
+
+        # Step 2: Find or create the brand term
+        terms = await self.get_attribute_terms(brand_attr["id"])
+        brand_term = None
+        for term in terms:
+            if term["name"].lower() == brand_name.lower():
+                brand_term = term
+                break
+
+        if not brand_term:
+            # Step 3: Create the brand term
+            brand_term = await self.create_attribute_term(brand_attr["id"], brand_name)
+
+        # Step 4: Assign to product
+        product = await self.get_product(product_id)
+        existing_attrs = product.get("attributes", [])
+
+        # Update or add the brand attribute
+        updated = False
+        for attr in existing_attrs:
+            if attr.get("id") == brand_attr["id"]:
+                attr["options"] = [brand_name]
+                updated = True
+                break
+
+        if not updated:
+            existing_attrs.append({
+                "id": brand_attr["id"],
+                "name": brand_attr["name"],
+                "options": [brand_name],
+                "visible": True,
+            })
+
+        return await self.update_product(product_id, {"attributes": existing_attrs})
 
     # ── Orders (for analytics — NEW) ─────────────────────
 

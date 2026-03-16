@@ -5,9 +5,33 @@ TheMainDog's quality gate: nothing publishes unless it scores 100/100.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from spectrum.core.agent import Agent, AgentResult, AgentRole
+
+# WooCommerce sometimes encodes semicolons as HTML entities,
+# causing false negatives in color/schema checks.
+_HTML_ENTITY_MAP = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#039;": "'",
+    "&#59;": ";",
+    "&semi;": ";",
+}
+
+# Maximum lines allowed in short_description
+SHORT_DESC_MAX_LINES = 6
+
+
+def _normalize_html(html: str) -> str:
+    """Normalize HTML entities back to their characters for reliable checks."""
+    result = html
+    for entity, char in _HTML_ENTITY_MAP.items():
+        result = result.replace(entity, char)
+    return result
 
 
 class ProductQA(Agent):
@@ -19,8 +43,10 @@ class ProductQA(Agent):
     - HTML validity and brand color compliance
     - SEO fields (Yoast title, meta description, focus keyword)
     - Schema markup present and valid
+    - Short description max 6 lines
     - No broken Hebrew (RTL issues)
     - No duplicate content across products
+    - Category must not be only "General" (כללי)
     """
 
     @property
@@ -29,7 +55,10 @@ class ProductQA(Agent):
 
     async def execute(self, context: dict[str, Any]) -> AgentResult:
         product = context.get("product", {})
-        html = context.get("_step_output", {}).get("html_description", "")
+        raw_html = context.get("_step_output", {}).get("html_description", "")
+
+        # Normalize HTML entities before running checks
+        html = _normalize_html(raw_html)
 
         errors: list[str] = []
         warnings: list[str] = []
@@ -45,6 +74,18 @@ class ProductQA(Agent):
         for field in required_fields:
             if not product.get(field):
                 errors.append(f"שדה חסר: {field}")
+                score -= 10
+
+        # ── Short Description (max 6 lines) ───────────────
+        short_desc = product.get("short_description", "")
+        if short_desc:
+            # Count visible lines (strip HTML tags, count non-empty lines)
+            text_only = re.sub(r"<[^>]+>", "\n", short_desc)
+            lines = [ln for ln in text_only.strip().splitlines() if ln.strip()]
+            if len(lines) > SHORT_DESC_MAX_LINES:
+                errors.append(
+                    f"תיאור קצר ארוך מדי: {len(lines)} שורות (מקסימום {SHORT_DESC_MAX_LINES})"
+                )
                 score -= 10
 
         # ── Images Check ──────────────────────────────────
@@ -80,6 +121,18 @@ class ProductQA(Agent):
             warnings.append("לא נמצא הגדרת RTL")
             score -= 5
 
+        # ── Category Validation ──────────────────────────
+        categories = product.get("categories", [])
+        category_names = [c.get("name", "").strip() for c in categories]
+        general_only = all(
+            n.lower() in ("general", "כללי", "uncategorized") for n in category_names
+        )
+        if categories and general_only:
+            errors.append(
+                "המוצר מקוטלג רק ב'כללי' — חובה לשייך לקטגוריה ספציפית"
+            )
+            score -= 10
+
         # ── Price Validation ──────────────────────────────
         price = product.get("price", "")
         if price:
@@ -91,6 +144,16 @@ class ProductQA(Agent):
             except (ValueError, TypeError):
                 errors.append(f"מחיר לא מספרי: {price}")
                 score -= 10
+
+        # ── Brand Attribute Check ─────────────────────────
+        attributes = product.get("attributes", [])
+        has_brand = any(
+            a.get("name", "").lower() in ("brand", "מותג")
+            for a in attributes
+        )
+        if not has_brand:
+            warnings.append("חסר תכונת מותג (Brand) — מומלץ להוסיף")
+            score -= 5
 
         score = max(0, score)
 
@@ -105,6 +168,9 @@ class ProductQA(Agent):
                     "has_images": bool(images),
                     "has_schema": "application/ld+json" in (html or ""),
                     "has_brand_colors": "#6B2D8B" in (html or "").upper(),
+                    "has_brand_attribute": has_brand,
+                    "short_desc_lines": len(lines) if short_desc else 0,
+                    "category_valid": not general_only,
                 },
             },
             errors=errors,
