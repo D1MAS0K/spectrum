@@ -45,6 +45,11 @@ class AgentRole(str, Enum):
     GA4_ANALYST = "ga4_analyst"
     MERCHANT_MANAGER = "merchant_manager"
 
+    # Site Maintenance Division (NEW — DogsState audit findings)
+    BRAND_MANAGER = "brand_manager"
+    SITE_FIXER = "site_fixer"
+    BULK_UPGRADER = "bulk_upgrader"
+
 
 @dataclass
 class AgentResult:
