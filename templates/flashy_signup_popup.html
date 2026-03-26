@@ -1,0 +1,253 @@
+<!--
+  DogsState Signup Popup for Flashy
+  Brand: Purple #6B2D8B / Green #4CAF50
+  Collects: first_name, last_name, phone, email, pet_type (dog/cat/both), favorite_thing
+  Sends data to Flashy list via API
+-->
+<div id="ds-signup-popup" style="direction:rtl;font-family:'Segoe UI',Tahoma,sans-serif;max-width:480px;margin:0 auto;padding:24px;text-align:center;">
+
+  <!-- Header -->
+  <div style="margin-bottom:18px;">
+    <span style="font-size:40px;">🐾</span>
+    <h2 style="color:#ffffff;font-size:26px;font-weight:800;margin:8px 0 4px;">!הצטרפו למשפחת דוגס סטייט</h2>
+    <p style="color:#e8d4ff;font-size:14px;margin:0;">הירשמו וקבלו הטבות מיוחדות לחיות שלכם</p>
+  </div>
+
+  <!-- Name fields -->
+  <div style="display:flex;gap:10px;margin-bottom:10px;">
+    <input type="text" id="ds-first-name" placeholder="שם פרטי"
+      style="flex:1;padding:12px 15px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none;text-align:right;direction:rtl;transition:all 0.3s;"
+      onfocus="this.style.borderColor='#fff';this.style.background='rgba(255,255,255,0.25)'"
+      onblur="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.15)'" />
+    <input type="text" id="ds-last-name" placeholder="שם משפחה"
+      style="flex:1;padding:12px 15px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none;text-align:right;direction:rtl;transition:all 0.3s;"
+      onfocus="this.style.borderColor='#fff';this.style.background='rgba(255,255,255,0.25)'"
+      onblur="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.15)'" />
+  </div>
+
+  <!-- Phone -->
+  <input type="tel" id="ds-phone" placeholder="📱 טלפון"
+    style="width:100%;padding:12px 15px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none;margin-bottom:10px;box-sizing:border-box;text-align:right;direction:rtl;transition:all 0.3s;"
+    onfocus="this.style.borderColor='#fff';this.style.background='rgba(255,255,255,0.25)'"
+    onblur="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.15)'" />
+
+  <!-- Email -->
+  <input type="email" id="ds-email" placeholder="📧 אימייל"
+    style="width:100%;padding:12px 15px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none;margin-bottom:15px;box-sizing:border-box;text-align:right;direction:rtl;transition:all 0.3s;"
+    onfocus="this.style.borderColor='#fff';this.style.background='rgba(255,255,255,0.25)'"
+    onblur="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.15)'" />
+
+  <!-- Pet Type Selection -->
+  <div style="margin-bottom:15px;">
+    <p style="color:#ffffff;font-size:16px;font-weight:700;margin:0 0 10px;">?איזה חיה יש לכם</p>
+    <div style="display:flex;gap:12px;justify-content:center;">
+
+      <!-- Dog -->
+      <div id="ds-pet-dog" onclick="dsSelectPet('dog')"
+        style="flex:1;cursor:pointer;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:16px;padding:15px 10px;text-align:center;transition:all 0.3s;"
+        onmouseover="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.25)';this.style.borderColor='#fff'}"
+        onmouseout="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.15)';this.style.borderColor='rgba(255,255,255,0.3)'}">
+        <div style="font-size:36px;">🐶</div>
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-top:5px;">כלב</div>
+      </div>
+
+      <!-- Cat -->
+      <div id="ds-pet-cat" onclick="dsSelectPet('cat')"
+        style="flex:1;cursor:pointer;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:16px;padding:15px 10px;text-align:center;transition:all 0.3s;"
+        onmouseover="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.25)';this.style.borderColor='#fff'}"
+        onmouseout="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.15)';this.style.borderColor='rgba(255,255,255,0.3)'}">
+        <div style="font-size:36px;">🐱</div>
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-top:5px;">חתול</div>
+      </div>
+
+      <!-- Both -->
+      <div id="ds-pet-both" onclick="dsSelectPet('both')"
+        style="flex:1;cursor:pointer;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);border-radius:16px;padding:15px 10px;text-align:center;transition:all 0.3s;"
+        onmouseover="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.25)';this.style.borderColor='#fff'}"
+        onmouseout="if(!this.classList.contains('ds-selected')){this.style.background='rgba(255,255,255,0.15)';this.style.borderColor='rgba(255,255,255,0.3)'}">
+        <div style="font-size:36px;">🐶🐱</div>
+        <div style="color:#fff;font-weight:700;font-size:14px;margin-top:5px;">שניהם</div>
+      </div>
+
+    </div>
+    <input type="hidden" id="ds-pet-type" value="" />
+  </div>
+
+  <!-- Favorite thing -->
+  <input type="text" id="ds-favorite" placeholder="🐾 מה הפרוותי הכי אוהב?"
+    style="width:100%;padding:12px 15px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none;margin-bottom:15px;box-sizing:border-box;text-align:right;direction:rtl;transition:all 0.3s;"
+    onfocus="this.style.borderColor='#fff';this.style.background='rgba(255,255,255,0.25)'"
+    onblur="this.style.borderColor='rgba(255,255,255,0.3)';this.style.background='rgba(255,255,255,0.15)'" />
+
+  <!-- Error message -->
+  <div id="ds-error" style="display:none;color:#ff6b6b;font-size:13px;font-weight:600;margin-bottom:10px;"></div>
+
+  <!-- Success message -->
+  <div id="ds-success" style="display:none;text-align:center;padding:20px 0;">
+    <div style="font-size:48px;margin-bottom:10px;">🎉🐾</div>
+    <h3 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;">!ברוכים הבאים למשפחה</h3>
+    <p style="color:#e8d4ff;font-size:14px;margin:0;">הטבות מיוחדות כבר בדרך אליכם</p>
+  </div>
+
+  <!-- Submit button -->
+  <button id="ds-submit-btn" type="button" onclick="dsSubmitForm()"
+    style="width:100%;padding:14px;background:#ffffff;color:#6B2D8B;border:none;border-radius:12px;font-size:18px;font-weight:800;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 15px rgba(0,0,0,0.2);"
+    onmouseover="this.style.transform='scale(1.02)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'"
+    onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+    🐾 הצטרפו למשפחה
+  </button>
+
+  <!-- Footer -->
+  <p style="color:rgba(255,255,255,0.6);font-size:11px;margin-top:12px;">🐾 DOGS STATE - BEEN THERE DOG THAT 🐾</p>
+</div>
+
+<script>
+(function() {
+  // =============================================
+  // CONFIGURATION - Update these values
+  // =============================================
+  var FLASHY_API_KEY = 'YOUR_FLASHY_API_KEY';       // Flashy API key
+  var FLASHY_LIST_ID = 'YOUR_FLASHY_LIST_ID';       // Flashy list ID to subscribe to
+  var FLASHY_API_URL = 'https://api.flashy.app/contacts';
+  // =============================================
+
+  var selectedPet = '';
+
+  // Pet selection handler
+  window.dsSelectPet = function(type) {
+    selectedPet = type;
+    document.getElementById('ds-pet-type').value = type;
+
+    var options = ['dog', 'cat', 'both'];
+    options.forEach(function(opt) {
+      var el = document.getElementById('ds-pet-' + opt);
+      if (opt === type) {
+        el.classList.add('ds-selected');
+        el.style.background = 'rgba(255,255,255,0.35)';
+        el.style.borderColor = '#4CAF50';
+        el.style.boxShadow = '0 0 12px rgba(76,175,80,0.4)';
+      } else {
+        el.classList.remove('ds-selected');
+        el.style.background = 'rgba(255,255,255,0.15)';
+        el.style.borderColor = 'rgba(255,255,255,0.3)';
+        el.style.boxShadow = 'none';
+      }
+    });
+  };
+
+  // Validation
+  function validateForm(data) {
+    if (!data.first_name.trim()) return 'נא להזין שם פרטי';
+    if (!data.last_name.trim()) return 'נא להזין שם משפחה';
+    if (!data.phone.trim() || !/^0\d{8,9}$/.test(data.phone.replace(/[-\s]/g, ''))) return 'נא להזין מספר טלפון תקין';
+    if (!data.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return 'נא להזין כתובת אימייל תקינה';
+    if (!data.pet_type) return 'נא לבחור סוג חיה';
+    return null;
+  }
+
+  function showError(msg) {
+    var el = document.getElementById('ds-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(function() { el.style.display = 'none'; }, 4000);
+  }
+
+  function showSuccess() {
+    document.getElementById('ds-success').style.display = 'block';
+    document.getElementById('ds-submit-btn').style.display = 'none';
+    // Hide form fields
+    var inputs = document.querySelectorAll('#ds-signup-popup input:not([type=hidden])');
+    inputs.forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('#ds-signup-popup > div')[2].style.display = 'none'; // pet selection
+    document.getElementById('ds-error').style.display = 'none';
+  }
+
+  // Submit handler
+  window.dsSubmitForm = function() {
+    var data = {
+      first_name: document.getElementById('ds-first-name').value,
+      last_name: document.getElementById('ds-last-name').value,
+      phone: document.getElementById('ds-phone').value,
+      email: document.getElementById('ds-email').value,
+      pet_type: selectedPet,
+      favorite: document.getElementById('ds-favorite').value
+    };
+
+    var error = validateForm(data);
+    if (error) {
+      showError(error);
+      return;
+    }
+
+    var btn = document.getElementById('ds-submit-btn');
+    btn.textContent = '...שולח';
+    btn.style.opacity = '0.7';
+    btn.style.pointerEvents = 'none';
+
+    // Map pet_type to Hebrew for Flashy tags
+    var petTagMap = { dog: 'כלב', cat: 'חתול', both: 'כלב_וחתול' };
+
+    // Flashy API payload
+    var payload = {
+      email: data.email,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      phone: data.phone,
+      lists: [FLASHY_LIST_ID],
+      tags: ['signup_popup', 'pet_' + data.pet_type, petTagMap[data.pet_type]],
+      custom: {
+        pet_type: data.pet_type,
+        pet_type_hebrew: petTagMap[data.pet_type],
+        favorite_thing: data.favorite
+      }
+    };
+
+    // Send to Flashy
+    fetch(FLASHY_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + FLASHY_API_KEY
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(function(response) {
+      if (!response.ok) throw new Error('API error: ' + response.status);
+      return response.json();
+    })
+    .then(function() {
+      showSuccess();
+    })
+    .catch(function(err) {
+      console.error('Flashy signup error:', err);
+      btn.textContent = '🐾 הצטרפו למשפחה';
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      showError('אופס, משהו השתבש. נסו שוב');
+    });
+  };
+})();
+</script>
+
+<!--
+  USAGE INSTRUCTIONS:
+  ==================
+  1. Replace YOUR_FLASHY_API_KEY with your actual Flashy API key
+  2. Replace YOUR_FLASHY_LIST_ID with the Flashy list ID you want contacts added to
+  3. Paste this HTML into your Flashy popup builder (Custom HTML block)
+  4. Set the popup background to a gradient: linear-gradient(135deg, #6B2D8B 0%, #9442e6 100%)
+  5. The popup background color should be set in Flashy's popup settings, not in this code
+
+  FLASHY TAGS SENT:
+  - signup_popup (identifies source)
+  - pet_dog / pet_cat / pet_both (English tag)
+  - כלב / חתול / כלב_וחתול (Hebrew tag)
+
+  CUSTOM FIELDS:
+  - pet_type: dog / cat / both
+  - pet_type_hebrew: כלב / חתול / כלב_וחתול
+  - favorite_thing: free text answer
+
+  NOTE: Make sure the custom fields (pet_type, pet_type_hebrew, favorite_thing)
+  exist in your Flashy account under Contacts > Custom Fields.
+-->
