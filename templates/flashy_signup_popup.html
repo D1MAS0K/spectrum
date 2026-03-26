@@ -106,8 +106,8 @@
   // =============================================
   // CONFIGURATION - Update these values
   // =============================================
-  var FLASHY_API_KEY = 'YOUR_FLASHY_API_KEY';       // Flashy API key
-  var FLASHY_LIST_ID = 'YOUR_FLASHY_LIST_ID';       // Flashy list ID to subscribe to
+  var FLASHY_API_KEY = 'wugv1yqpu7eh9kd0l6gwr4mge6jghvhh';  // Flashy API key
+  var FLASHY_LIST_ID = '35587';                               // Flashy list ID to subscribe to
   var FLASHY_API_URL = 'https://api.flashy.app/contacts';
   // =============================================
 
@@ -196,9 +196,8 @@
       lists: [FLASHY_LIST_ID],
       tags: ['signup_popup', 'pet_' + data.pet_type, petTagMap[data.pet_type]],
       custom: {
-        pet_type: data.pet_type,
-        pet_type_hebrew: petTagMap[data.pet_type],
-        favorite_thing: data.favorite
+        petkind: data.pet_type,
+        petlove: data.favorite
       }
     };
 
@@ -248,6 +247,6 @@
   - pet_type_hebrew: כלב / חתול / כלב_וחתול
   - favorite_thing: free text answer
 
-  NOTE: Make sure the custom fields (pet_type, pet_type_hebrew, favorite_thing)
+  NOTE: Make sure the custom fields (petkind, petlove)
   exist in your Flashy account under Contacts > Custom Fields.
 -->
