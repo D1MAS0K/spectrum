@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ראש נקי - לוח בקרה</title>
+    <meta name="theme-color" content="#6B2D8B">
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="app-page">
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-screen" class="screen active">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-right">
+                <span class="greeting" id="greeting-text">שלום!</span>
+            </div>
+            <div class="top-bar-left">
+                <button class="icon-btn" onclick="showTab('settings')" title="הגדרות">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Daily Quote Banner -->
+        <div class="quote-banner" id="quote-banner">
+            <p class="quote-text" id="daily-quote-text">טוען ציטוט...</p>
+            <span class="quote-author" id="daily-quote-author"></span>
+        </div>
+
+        <!-- Tab Content Area -->
+        <main class="tab-content">
+
+            <!-- HOME TAB -->
+            <div id="tab-home" class="tab-panel active">
+                <!-- Sobriety Counter -->
+                <div class="counter-card">
+                    <div class="counter-label">ימים של ראש נקי</div>
+                    <div class="counter-main">
+                        <span class="counter-number" id="sober-days">0</span>
+                    </div>
+                    <div class="counter-detail">
+                        <div class="counter-unit">
+                            <span id="sober-hours-num">0</span>
+                            <small>שעות</small>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="counter-unit">
+                            <span id="sober-minutes-num">0</span>
+                            <small>דקות</small>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="counter-unit">
+                            <span id="sober-seconds-num">0</span>
+                            <small>שניות</small>
+                        </div>
+                    </div>
+                    <div class="counter-start-date" id="counter-start-date"></div>
+                </div>
+
+                <!-- Savings Cards -->
+                <div class="savings-row">
+                    <div class="saving-card money">
+                        <span class="saving-icon">💰</span>
+                        <span class="saving-value" id="money-saved">₪0</span>
+                        <span class="saving-label">כסף שנחסך</span>
+                    </div>
+                    <div class="saving-card time">
+                        <span class="saving-icon">⏰</span>
+                        <span class="saving-value" id="hours-saved">0</span>
+                        <span class="saving-label">שעות שנחסכו</span>
+                    </div>
+                </div>
+
+                <!-- Daily Pledge -->
+                <div class="pledge-card" id="pledge-card">
+                    <h3>🌅 התחייבות יומית</h3>
+                    <div id="pledge-content">
+                        <p class="pledge-question">מוכן/ה להתחייב ליום נקי נוסף?</p>
+                        <div class="mood-selector" id="morning-mood">
+                            <span>איך את/ה מרגיש/ה?</span>
+                            <div class="mood-options">
+                                <button class="mood-btn" data-mood="1" onclick="selectMood(this, 'morning')">😢</button>
+                                <button class="mood-btn" data-mood="2" onclick="selectMood(this, 'morning')">😕</button>
+                                <button class="mood-btn" data-mood="3" onclick="selectMood(this, 'morning')">😐</button>
+                                <button class="mood-btn" data-mood="4" onclick="selectMood(this, 'morning')">🙂</button>
+                                <button class="mood-btn" data-mood="5" onclick="selectMood(this, 'morning')">😄</button>
+                            </div>
+                        </div>
+                        <textarea id="pledge-note" placeholder="מה נותן לך כוח היום?" rows="2" class="input-field"></textarea>
+                        <button class="btn btn-primary btn-full" onclick="submitMorningPledge()">
+                            אני מתחייב/ת ליום נקי! 💪
+                        </button>
+                    </div>
+                    <div id="pledge-done" style="display:none;">
+                        <div class="pledge-success">
+                            <span class="pledge-check">✅</span>
+                            <p>נתת התחייבות להיום! כל הכבוד!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Milestone Progress -->
+                <div class="section-card">
+                    <h3>🏆 אבני דרך</h3>
+                    <div id="milestones-container" class="milestones-list">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Withdrawal Timeline -->
+                <div class="section-card">
+                    <h3>📋 ציר זמן גמילה מקנאביס</h3>
+                    <div id="withdrawal-timeline" class="timeline">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- URGE TAB -->
+            <div id="tab-urge" class="tab-panel">
+                <div class="urge-card">
+                    <h2>🆘 יש לי דחף</h2>
+                    <p class="urge-subtitle">בוא נתמודד עם זה ביחד</p>
+
+                    <!-- Breathing Exercise -->
+                    <div class="breathing-exercise" id="breathing-exercise">
+                        <div class="breath-circle" id="breath-circle">
+                            <span id="breath-text">לחץ להתחלה</span>
+                        </div>
+                        <button class="btn btn-outline" onclick="startBreathing()">תרגיל נשימה 🫁</button>
+                    </div>
+
+                    <!-- Urge Logger -->
+                    <div class="urge-form">
+                        <h3>תעד את הדחף</h3>
+                        <div class="form-group">
+                            <label>עוצמת הדחף (1-10)</label>
+                            <div class="intensity-slider">
+                                <input type="range" id="urge-intensity" min="1" max="10" value="5" oninput="updateIntensityLabel(this.value)">
+                                <span class="intensity-label" id="intensity-label">5</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>מה גרם לדחף?</label>
+                            <div class="trigger-buttons">
+                                <button class="trigger-btn" data-trigger="stress" onclick="selectTrigger(this)">😰 לחץ</button>
+                                <button class="trigger-btn" data-trigger="social" onclick="selectTrigger(this)">👥 חברתי</button>
+                                <button class="trigger-btn" data-trigger="boredom" onclick="selectTrigger(this)">😑 שעמום</button>
+                                <button class="trigger-btn" data-trigger="emotional" onclick="selectTrigger(this)">💔 רגשי</button>
+                                <button class="trigger-btn" data-trigger="habit" onclick="selectTrigger(this)">🔄 הרגל</button>
+                                <button class="trigger-btn" data-trigger="other" onclick="selectTrigger(this)">❓ אחר</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>איך התמודדת?</label>
+                            <textarea id="urge-coping" placeholder="מה עזר לך? הליכה, שיחה, נשימות..." rows="2" class="input-field"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <button class="btn btn-success btn-half" onclick="logUrge(true)">
+                                💪 התגברתי!
+                            </button>
+                            <button class="btn btn-warning btn-half" onclick="logUrge(false)">
+                                😔 נכשלתי
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Urge Stats -->
+                    <div class="section-card" style="margin-top: 20px;">
+                        <h3>📊 סטטיסטיקת דחפים</h3>
+                        <div id="urge-stats">
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <span class="stat-val" id="urge-total">0</span>
+                                    <span class="stat-lbl">דחפים</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" id="urge-resisted">0</span>
+                                    <span class="stat-lbl">התגברת</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" id="urge-rate">100%</span>
+                                    <span class="stat-lbl">אחוז הצלחה</span>
+                                </div>
+                                <div class="stat-box">
+                                    <span class="stat-val" id="urge-avg">0</span>
+                                    <span class="stat-lbl">עוצמה ממוצעת</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JOURNAL TAB -->
+            <div id="tab-journal" class="tab-panel">
+                <div class="journal-header">
+                    <h2>📝 היומן שלי</h2>
+                    <button class="btn btn-primary btn-sm" onclick="toggleNewEntry()">+ רשומה חדשה</button>
+                </div>
+
+                <div id="new-entry-form" class="journal-form" style="display:none;">
+                    <div class="form-group">
+                        <input type="text" id="journal-title" placeholder="כותרת (אופציונלי)" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <textarea id="journal-content" placeholder="מה עובר עליך היום?" rows="5" class="input-field" required></textarea>
+                    </div>
+                    <div class="mood-selector">
+                        <span>מצב רוח:</span>
+                        <div class="mood-options">
+                            <button class="mood-btn" data-mood="1" onclick="selectMood(this, 'journal')">😢</button>
+                            <button class="mood-btn" data-mood="2" onclick="selectMood(this, 'journal')">😕</button>
+                            <button class="mood-btn" data-mood="3" onclick="selectMood(this, 'journal')">😐</button>
+                            <button class="mood-btn" data-mood="4" onclick="selectMood(this, 'journal')">🙂</button>
+                            <button class="mood-btn" data-mood="5" onclick="selectMood(this, 'journal')">😄</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="saveJournalEntry()">שמור רשומה 💾</button>
+                </div>
+
+                <div id="journal-entries" class="journal-list">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- COMMUNITY TAB -->
+            <div id="tab-community" class="tab-panel">
+                <div class="community-header">
+                    <h2>👥 קהילת ראש נקי</h2>
+                    <button class="btn btn-primary btn-sm" onclick="toggleNewPost()">+ פוסט חדש</button>
+                </div>
+
+                <div id="new-post-form" class="post-form" style="display:none;">
+                    <textarea id="post-content" placeholder="שתף/י את הקהילה..." rows="3" class="input-field" required></textarea>
+                    <div class="post-options">
+                        <select id="post-type" class="select-field">
+                            <option value="share">שיתוף 💬</option>
+                            <option value="question">שאלה ❓</option>
+                            <option value="milestone">אבן דרך 🏆</option>
+                            <option value="support">בקשת תמיכה 🤗</option>
+                        </select>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="post-anonymous"> אנונימי
+                        </label>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="submitPost()">פרסם 📣</button>
+                </div>
+
+                <div id="community-feed" class="feed">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="tab-panel">
+                <div class="settings-container">
+                    <h2>⚙️ הגדרות</h2>
+
+                    <div class="setting-section">
+                        <h3>פרטים אישיים</h3>
+                        <div class="form-group">
+                            <label>שם תצוגה</label>
+                            <input type="text" id="settings-name" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>תאריך ניקיון</label>
+                            <input type="date" id="settings-sobriety-date" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>הסיבה שלי להפסיק</label>
+                            <textarea id="settings-motivation" rows="3" class="input-field"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="setting-section">
+                        <h3>חישוב חיסכון</h3>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>₪ ליום</label>
+                                <input type="number" id="settings-cost" class="input-field" value="50">
+                            </div>
+                            <div class="form-group half">
+                                <label>שעות ליום</label>
+                                <input type="number" id="settings-hours" class="input-field" value="2" step="0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" onclick="saveSettings()">שמור הגדרות 💾</button>
+
+                    <div class="setting-section danger-zone">
+                        <h3>איפוס</h3>
+                        <p>נכשלת? זה בסדר. הכי חשוב שאתה פה. כל יום הוא התחלה חדשה.</p>
+                        <button class="btn btn-warning btn-full" onclick="confirmReset()">איפוס מונה 🔄</button>
+                    </div>
+
+                    <button class="btn btn-outline btn-full" onclick="logout()" style="margin-top: 20px;">
+                        התנתקות 👋
+                    </button>
+
+                    <div class="app-info">
+                        <p>ראש נקי v1.0</p>
+                        <p>על ידי ניב איפרגן</p>
+                        <p>🧠💜</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showTab('home')" data-tab="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">בית</span>
+            </button>
+            <button class="nav-item" onclick="showTab('urge')" data-tab="urge">
+                <span class="nav-icon">🆘</span>
+                <span class="nav-label">דחף</span>
+            </button>
+            <button class="nav-item" onclick="showTab('journal')" data-tab="journal">
+                <span class="nav-icon">📝</span>
+                <span class="nav-label">יומן</span>
+            </button>
+            <button class="nav-item" onclick="showTab('community')" data-tab="community">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">קהילה</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Milestone Celebration Modal -->
+    <div id="milestone-modal" class="modal" style="display:none;">
+        <div class="modal-content celebration">
+            <div class="celebration-emoji">🎉</div>
+            <h2 id="milestone-title">אבן דרך חדשה!</h2>
+            <p id="milestone-message"></p>
+            <button class="btn btn-primary" onclick="closeMilestoneModal()">תודה! 💜</button>
+        </div>
+    </div>
+
+    <!-- Evening Review Modal -->
+    <div id="evening-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2>🌙 סיכום יומי</h2>
+            <p>איך היה היום?</p>
+            <div class="mood-selector">
+                <div class="mood-options">
+                    <button class="mood-btn" data-mood="1" onclick="selectMood(this, 'evening')">😢</button>
+                    <button class="mood-btn" data-mood="2" onclick="selectMood(this, 'evening')">😕</button>
+                    <button class="mood-btn" data-mood="3" onclick="selectMood(this, 'evening')">😐</button>
+                    <button class="mood-btn" data-mood="4" onclick="selectMood(this, 'evening')">🙂</button>
+                    <button class="mood-btn" data-mood="5" onclick="selectMood(this, 'evening')">😄</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>רמת קושי (1-10)</label>
+                <input type="range" id="evening-difficulty" min="1" max="10" value="5">
+            </div>
+            <textarea id="evening-note" placeholder="מה למדת היום?" rows="3" class="input-field"></textarea>
+            <div class="form-row">
+                <button class="btn btn-success btn-half" onclick="submitEveningReview(true)">
+                    ✅ יום נקי!
+                </button>
+                <button class="btn btn-warning btn-half" onclick="submitEveningReview(false)">
+                    😔 נכשלתי
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

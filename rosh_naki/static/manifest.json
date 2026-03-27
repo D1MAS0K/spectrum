@@ -1,0 +1,25 @@
+{
+  "name": "ראש נקי - שחרור מקנאביס",
+  "short_name": "ראש נקי",
+  "description": "אפליקציית גמילה מקנאביס של קהילת ראש נקי בהנהגת ניב איפרגן",
+  "start_url": "/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F5FF",
+  "theme_color": "#6B2D8B",
+  "dir": "rtl",
+  "lang": "he",
+  "icons": [
+    {
+      "src": "/static/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["health", "lifestyle", "medical"]
+}

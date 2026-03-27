@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ראש נקי - שחרור מהתלות בקנאביס</title>
+    <meta name="description" content="אפליקציית גמילה מקנאביס של קהילת ראש נקי בהנהגת ניב איפרגן">
+    <meta name="theme-color" content="#6B2D8B">
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="landing-page">
+    <!-- Landing / Login / Register -->
+    <div id="landing-screen" class="screen active">
+        <div class="landing-bg">
+            <div class="particles"></div>
+        </div>
+        <div class="landing-content">
+            <div class="logo-container">
+                <div class="logo-circle">
+                    <span class="logo-icon">🧠</span>
+                </div>
+                <h1 class="app-title">ראש נקי</h1>
+                <p class="app-subtitle">שחרור מהתלות בקנאביס</p>
+                <p class="app-credit">על ידי ניב איפרגן</p>
+            </div>
+
+            <div class="landing-quote">
+                <p>"החופש האמיתי מתחיל כשאתה מפסיק לברוח מעצמך"</p>
+            </div>
+
+            <div class="landing-buttons">
+                <button class="btn btn-primary btn-lg" onclick="showScreen('register-screen')">
+                    מתחילים את המסע 🚀
+                </button>
+                <button class="btn btn-outline btn-lg" onclick="showScreen('login-screen')">
+                    כבר יש לי חשבון
+                </button>
+            </div>
+
+            <div class="landing-stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-users">1,247</span>
+                    <span class="stat-label">נקיים בקהילה</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="total-days">45,832</span>
+                    <span class="stat-label">ימי ניקיון</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Screen -->
+    <div id="register-screen" class="screen">
+        <div class="auth-container">
+            <button class="back-btn" onclick="showScreen('landing-screen')">→ חזרה</button>
+            <div class="auth-header">
+                <div class="logo-circle small">
+                    <span class="logo-icon">🧠</span>
+                </div>
+                <h2>הצטרפות לראש נקי</h2>
+                <p>המסע לחופש מתחיל כאן</p>
+            </div>
+
+            <form id="register-form" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="reg-name">שם תצוגה</label>
+                    <input type="text" id="reg-name" placeholder="איך לקרוא לך?" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-username">שם משתמש</label>
+                    <input type="text" id="reg-username" placeholder="שם משתמש (באנגלית)" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">אימייל</label>
+                    <input type="email" id="reg-email" placeholder="your@email.com" required dir="ltr">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">סיסמה</label>
+                    <input type="password" id="reg-password" placeholder="סיסמה חזקה" required dir="ltr">
+                </div>
+                <div class="form-group">
+                    <label for="reg-sobriety-date">מתי הפסקת? (תאריך ניקיון)</label>
+                    <input type="date" id="reg-sobriety-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-motivation">למה אתה רוצה להפסיק?</label>
+                    <textarea id="reg-motivation" placeholder="הסיבה שלך היא הכוח שלך..." rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="reg-cost">₪ ליום על קנאביס</label>
+                        <input type="number" id="reg-cost" value="50" min="0" step="5">
+                    </div>
+                    <div class="form-group half">
+                        <label for="reg-hours">שעות ליום שהלכו</label>
+                        <input type="number" id="reg-hours" value="2" min="0" step="0.5">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                    יוצאים לחופש! ✨
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="auth-container">
+            <button class="back-btn" onclick="showScreen('landing-screen')">→ חזרה</button>
+            <div class="auth-header">
+                <div class="logo-circle small">
+                    <span class="logo-icon">🧠</span>
+                </div>
+                <h2>ברוכים השבים!</h2>
+                <p>כיף שחזרת</p>
+            </div>
+
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-username">שם משתמש</label>
+                    <input type="text" id="login-username" placeholder="שם משתמש" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">סיסמה</label>
+                    <input type="password" id="login-password" placeholder="סיסמה" required dir="ltr">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-full">
+                    התחברות 🔑
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
